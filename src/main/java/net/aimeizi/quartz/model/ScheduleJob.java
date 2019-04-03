@@ -17,6 +17,16 @@ public class ScheduleJob extends Pageable {
     /** 任务id */
     private Long              scheduleJobId;
 
+    private String className;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
     /** 任务名称 */
     private String            jobName;
 

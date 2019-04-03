@@ -14,7 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * author : fengjing
@@ -25,6 +29,8 @@ import java.util.List;
 @Service
 public class ScheduleJobServiceImpl implements ScheduleJobService {
 
+    private Map clazzCache = new ConcurrentHashMap<String,Class<? extends Job>>(16);
+
     /** 调度工厂Bean */
     @Autowired
     private Scheduler scheduler;
@@ -33,7 +39,7 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
     @Autowired
     private JdbcDao jdbcDao;
 
-    public void initScheduleJob() {
+    public void initScheduleJob() throws ClassNotFoundException {
         List<ScheduleJob> scheduleJobList = jdbcDao.queryList(Criteria.select(ScheduleJob.class));
         if (CollectionUtils.isEmpty(scheduleJobList)) {
             return;
@@ -44,7 +50,18 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
 
             //不存在，创建一个
             if (cronTrigger == null) {
-                ScheduleUtils.createScheduleJob(scheduler, scheduleJob);
+
+                Class<? extends Job> clazz =null;
+
+                if(clazzCache.containsKey(scheduleJob.getClassName())){
+                    clazzCache.get(scheduleJob.getClassName());
+                }else{
+                    clazz = (Class<? extends Job>) Class.forName(scheduleJob.getClassName());
+
+                    clazzCache.put(scheduleJob.getClassName(),clazz);
+                }
+
+                ScheduleUtils.createScheduleJob(scheduler,clazz, scheduleJob);
             } else {
                 //已存在，那么更新相应的定时设置
                 ScheduleUtils.updateScheduleJob(scheduler, scheduleJob);
@@ -52,9 +69,11 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
         }
     }
 
-    public Long insert(ScheduleJobVo scheduleJobVo) {
+    public Long insert(ScheduleJobVo scheduleJobVo) throws ClassNotFoundException {
         ScheduleJob scheduleJob = scheduleJobVo.getTargetObject(ScheduleJob.class);
-        ScheduleUtils.createScheduleJob(scheduler, scheduleJob);
+        Class<? extends Job> clazz = (Class<? extends Job>) Class.forName(scheduleJobVo.getClassName());
+
+        ScheduleUtils.createScheduleJob(scheduler,clazz, scheduleJob);
         return jdbcDao.insert(scheduleJob);
     }
 
@@ -69,7 +88,10 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
         //先删除
         ScheduleUtils.deleteScheduleJob(scheduler, scheduleJob.getJobName(), scheduleJob.getJobGroup());
         //再创建
-        ScheduleUtils.createScheduleJob(scheduler, scheduleJob);
+
+
+
+        ScheduleUtils.createScheduleJob(scheduler, (Class<? extends Job>) clazzCache.get(scheduleJobVo.getClassName()), scheduleJob);
         //数据库直接更新即可
         jdbcDao.update(scheduleJob);
     }

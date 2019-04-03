@@ -7,6 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 /**
  * author : fengjing
  * createTime : 2016-08-04
@@ -25,6 +29,27 @@ public class SyncJobFactory extends QuartzJobBean {
         JobDataMap mergedJobDataMap = context.getMergedJobDataMap();
         ScheduleJob scheduleJob = (ScheduleJob) mergedJobDataMap.get(ScheduleJobVo.JOB_PARAM_KEY);
         System.out.println("jobName:" + scheduleJob.getJobName() + "  " + scheduleJob);
+
+        //todo  className
+
+        //执行className 的 excute方法
+
+        String className = scheduleJob.getJobName();
+        System.out.println("className:"+className);
+
+        try {
+            Class<? extends Job> clazz = (Class<? extends Job>) Class.forName(className);
+
+            clazz.newInstance().execute(context);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+
+
 //        String url = scheduleJob.getUrl();
 //        CloseableHttpClient httpclient = HttpClients.createDefault();
 //        HttpGet httpGet = new HttpGet(url);

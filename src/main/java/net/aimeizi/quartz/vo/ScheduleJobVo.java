@@ -17,6 +17,16 @@ public class ScheduleJobVo extends Pageable {
     /** 任务调度的参数key */
     public static final String JOB_PARAM_KEY    = "jobParam";
 
+    private String className;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
     /** 任务id */
     private Long               scheduleJobId;
 
@@ -52,6 +62,11 @@ public class ScheduleJobVo extends Pageable {
 
     /** 任务执行url */
     private String             url;
+
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
 
     public Long getScheduleJobId() {
         return scheduleJobId;

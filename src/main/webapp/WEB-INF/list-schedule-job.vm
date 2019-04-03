@@ -2,6 +2,7 @@
 <a href="input-schedule-job.shtml" class="btn btn-success" role="button">添加任务</a>
 <table class="table table-bordered table-margin-top">
     <tr>
+        <td>任务类名</td>
         <td>任务名称</td>
         <td>任务别名</td>
         <td>任务分组</td>
@@ -15,6 +16,7 @@
     </tr>
     #foreach($item in $scheduleJobVoList)
         <tr>
+            <td>$!{item.className}</td>
             <td>$!{item.jobName}</td>
             <td>$!{item.aliasName}</td>
             <td>$!{item.jobGroup}</td>

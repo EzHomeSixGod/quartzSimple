@@ -97,7 +97,7 @@ public class ScheduleJobController {
      * @return
      */
     @RequestMapping(value = "save-schedule-job", method = RequestMethod.POST)
-    public String saveScheduleJob(ScheduleJobVo scheduleJobVo) {
+    public String saveScheduleJob(ScheduleJobVo scheduleJobVo) throws ClassNotFoundException {
 
         //测试用随便设个状态
         scheduleJobVo.setStatus("1");

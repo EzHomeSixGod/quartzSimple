@@ -34,7 +34,11 @@ public class ScheduleJobInit {
             LOG.info("init");
         }
 
-        scheduleJobService.initScheduleJob();
+        try {
+            scheduleJobService.initScheduleJob();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         if (LOG.isInfoEnabled()) {
             LOG.info("end");

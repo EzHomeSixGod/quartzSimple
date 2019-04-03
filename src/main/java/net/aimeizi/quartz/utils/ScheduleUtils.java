@@ -57,8 +57,8 @@ public class ScheduleUtils {
      * @param scheduler the scheduler
      * @param scheduleJob the schedule job
      */
-    public static void createScheduleJob(Scheduler scheduler, ScheduleJob scheduleJob) {
-        createScheduleJob(scheduler, scheduleJob.getJobName(), scheduleJob.getJobGroup(),
+    public static void createScheduleJob(Scheduler scheduler,Class<? extends Job> clazz, ScheduleJob scheduleJob) {
+        createScheduleJob(scheduler,clazz, scheduleJob.getJobName(), scheduleJob.getJobGroup(),
             scheduleJob.getCronExpression(), scheduleJob.getIsSync(), scheduleJob);
     }
 
@@ -72,10 +72,10 @@ public class ScheduleUtils {
      * @param isSync the is sync
      * @param param the param
      */
-    public static void createScheduleJob(Scheduler scheduler, String jobName, String jobGroup,
+    public static void createScheduleJob(Scheduler scheduler,Class<? extends  Job> jobClass, String jobName, String jobGroup,
                                          String cronExpression, boolean isSync, Object param) {
         //同步或异步
-        Class<? extends Job> jobClass = isSync ? AsyncJobFactory.class : SyncJobFactory.class;
+        jobClass = isSync ? AsyncJobFactory.class : SyncJobFactory.class;
 
         //构建job信息
         JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroup).build();
@@ -89,6 +89,7 @@ public class ScheduleUtils {
         String jobTrigger = trigger.getKey().getName();
 
         ScheduleJob scheduleJob = (ScheduleJob)param;
+        scheduleJob.setClassName(jobClass.getName());
         scheduleJob.setJobTrigger(jobTrigger);
 
         //放入参数，运行时的方法可以获取
